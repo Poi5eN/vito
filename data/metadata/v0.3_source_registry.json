@@ -1,0 +1,43 @@
+{
+  "version": "0.3.0",
+  "sources": [
+    {
+      "source_id": "vito_project_generated",
+      "source_type": "project_generated",
+      "name": "VITO project-generated records",
+      "license": "project_generated",
+      "allowed_for_training": true,
+      "requires_attribution": false,
+      "notes": "Synthetic records generated specifically for VITO development."
+    },
+    {
+      "source_id": "huggingface_cosmopedia_web_samples_v1",
+      "source_type": "huggingface",
+      "dataset": "HuggingFaceTB/cosmopedia",
+      "config": "web_samples_v1",
+      "split": "train",
+      "license": "apache-2.0",
+      "allowed_for_training": true,
+      "requires_attribution": true,
+      "notes": "Use only the selected subset ingested by the VITO pipeline."
+    },
+    {
+      "source_id": "huggingface_fineweb",
+      "source_type": "huggingface",
+      "dataset": "HuggingFaceFW/fineweb",
+      "license": "odc-by-1.0",
+      "allowed_for_training": false,
+      "requires_attribution": true,
+      "notes": "Disabled for v0.3 bootstrap. Requires explicit provenance and licensing review."
+    },
+    {
+      "source_id": "huggingface_starcoderdata",
+      "source_type": "huggingface",
+      "dataset": "bigcode/starcoderdata",
+      "license": "other",
+      "allowed_for_training": false,
+      "requires_attribution": true,
+      "notes": "Gated dataset with source-repository license requirements. Disabled until separately reviewed."
+    }
+  ]
+}

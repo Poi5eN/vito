@@ -1,0 +1,94 @@
+version: 0.3.0
+
+creator: Gourav Kumar Upadhyay
+
+status: data_expansion
+
+dataset_name: vito-corpus
+
+record_types:
+  structured:
+    enabled: true
+  text:
+    enabled: true
+  code:
+    enabled: false
+
+domains:
+  developer:
+    target_fraction: 0.45
+
+  venture:
+    target_fraction: 0.30
+
+  verification:
+    target_fraction: 0.15
+
+  general:
+    target_fraction: 0.10
+
+splits:
+  train: 0.90
+  validation: 0.05
+  test: 0.05
+  seed: 42
+
+targets:
+  minimum_records: 2000
+  target_records: 5000
+  target_training_tokens: 10000000
+
+quality:
+  require_provenance: true
+  require_verification: true
+  reject_secrets: true
+  reject_empty_input: true
+  reject_empty_output: true
+  reject_duplicate_sample_ids: true
+  reject_duplicate_text: true
+
+external_sources:
+
+  cosmopedia:
+    enabled: true
+    dataset: HuggingFaceTB/cosmopedia
+    config: web_samples_v1
+    split: train
+    license: apache-2.0
+    source_type: huggingface
+    streaming: true
+    max_records: 1000
+
+  fineweb:
+    enabled: false
+    dataset: HuggingFaceFW/fineweb
+    split: train
+    license: odc-by-1.0
+    source_type: huggingface
+    streaming: true
+    max_records: 0
+
+  starcoderdata:
+    enabled: false
+    dataset: bigcode/starcoderdata
+    license: other
+    source_type: huggingface
+    gated: true
+    max_records: 0
+
+benchmark_policy:
+  benchmark_data_never_enters_training: true
+  benchmark_data_never_enters_validation: true
+
+license_policy:
+  external_records_require_license: true
+  external_records_require_source: true
+  external_records_require_retrieval_metadata: true
+
+tokenizer:
+  target_vocab_size: 12288
+  model_type: bpe
+  min_frequency: 2
+
+training:
+  target_context_length: 256
