@@ -1,0 +1,36 @@
+project:
+  name: VITO
+  full_name: Verification-First Intelligence for Technical Operations
+
+  version: 0.1.0
+
+creator:
+  name: Gourav Kumar Upadhyay
+  role: Founder & Creator
+
+organization:
+  name: Independent Project
+
+status:
+  stage: development
+
+research:
+  primary_domain:
+    - software-engineering
+    - debugging
+    - devops
+    - systems
+    - technical-troubleshooting
+
+  primary_goal:
+    - verification-first technical assistance
+
+model:
+  pretrained: false
+  initialized_from_scratch: true
+
+repositories:
+  source: github
+  model: huggingface
+  dataset: huggingface
+  demo: huggingface-spaces

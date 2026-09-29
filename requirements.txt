@@ -1,0 +1,13 @@
+torch
+transformers
+datasets
+tokenizers
+accelerate
+safetensors
+sentencepiece
+evaluate
+tensorboard
+tqdm
+numpy
+pandas
+matplotlib
