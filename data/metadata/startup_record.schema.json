@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VITO Startup Record",
+  "type": "object",
+  "required": ["startup_id", "name", "as_of", "dimensions"],
+  "properties": {
+    "startup_id": {"type": "string"},
+    "name": {"type": "string"},
+    "stage": {"type": ["string", "null"]},
+    "sector": {"type": ["string", "null"]},
+    "geography": {"type": ["string", "null"]},
+    "as_of": {"type": "string", "format": "date-time"},
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "score": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+          "evidence_ids": {"type": "array", "items": {"type": "string"}},
+          "notes": {"type": "string"}
+        },
+        "required": ["score"]
+      }
+    }
+  }
+}

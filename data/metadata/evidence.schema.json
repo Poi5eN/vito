@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VITO Evidence Record",
+  "type": "object",
+  "required": ["evidence_id", "startup_id", "claim", "verification_status", "retrieved_at"],
+  "properties": {
+    "evidence_id": {"type": "string"},
+    "startup_id": {"type": "string"},
+    "claim": {"type": "string"},
+    "value": {},
+    "unit": {"type": ["string", "null"]},
+    "source_url": {"type": ["string", "null"]},
+    "publisher": {"type": ["string", "null"]},
+    "source_type": {"type": ["string", "null"]},
+    "reliability_tier": {"type": ["string", "null"]},
+    "published_at": {"type": ["string", "null"]},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "as_of": {"type": ["string", "null"]},
+    "source_excerpt_or_locator": {"type": ["string", "null"]},
+    "verification_status": {
+      "type": "string",
+      "enum": ["verified", "partially_verified", "claimed", "conflicting", "unverified", "calculated"]
+    }
+  }
+}

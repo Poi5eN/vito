@@ -1,0 +1,20 @@
+{
+  "startup_id": "example-ai",
+  "name": "ExampleAI",
+  "stage": "seed",
+  "sector": "B2B SaaS",
+  "geography": "India",
+  "as_of": "2026-09-29T00:00:00Z",
+  "dimensions": {
+    "market_opportunity": {"score": 78, "evidence_ids": ["e1"]},
+    "product_problem_fit": {"score": 74, "evidence_ids": ["e2"]},
+    "traction": {"score": 82, "evidence_ids": ["e3"]},
+    "growth_momentum": {"score": 80, "evidence_ids": ["e4"]},
+    "retention_engagement": {"score": 65, "evidence_ids": ["e5"]},
+    "unit_economics_financial_quality": {"score": 72, "evidence_ids": ["e6"]},
+    "go_to_market_efficiency": {"score": 69, "evidence_ids": ["e7"]},
+    "technology_defensibility": {"score": 77, "evidence_ids": ["e8"]},
+    "team_execution": {"score": 84, "evidence_ids": ["e9"]},
+    "risk_resilience_data_quality": {"score": 61, "evidence_ids": ["e10"]}
+  }
+}

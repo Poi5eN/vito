@@ -1,0 +1,24 @@
+version: 0.1.0
+scale_max: 1000
+missing_component_score: 50
+
+weights:
+  market_opportunity: 120
+  product_problem_fit: 100
+  traction: 150
+  growth_momentum: 120
+  retention_engagement: 100
+  unit_economics_financial_quality: 120
+  go_to_market_efficiency: 70
+  technology_defensibility: 70
+  team_execution: 80
+  risk_resilience_data_quality: 70
+
+confidence:
+  scale_max: 100
+  factors:
+    evidence_coverage: 0.35
+    source_quality: 0.25
+    freshness: 0.15
+    consistency: 0.15
+    calculation_support: 0.10

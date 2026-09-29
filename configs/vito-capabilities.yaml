@@ -1,0 +1,50 @@
+version: 0.1.0
+
+capabilities:
+  developer:
+    - code_generation
+    - code_completion
+    - debugging
+    - code_review
+    - refactoring
+    - test_generation
+    - sql
+    - systems
+    - devops
+    - technical_reasoning
+    - verification
+
+  venture:
+    - startup_analysis
+    - market_analysis
+    - traction_analysis
+    - growth_analysis
+    - cohort_analysis
+    - unit_economics
+    - financial_analysis
+    - go_to_market_analysis
+    - technology_assessment
+    - risk_analysis
+    - evidence_verification
+
+runtime:
+  tools:
+    - python
+    - sql
+    - filesystem
+    - tests
+    - git
+    - web_research
+
+serving:
+  openai_compatible_api: true
+  api_keys: true
+  local_inference: true
+  ollama_target: true
+
+analytics:
+  training_metrics: true
+  experiment_tracking: true
+  benchmark_tracking: true
+  startup_scoring: true
+  startup_score_scale: 1000

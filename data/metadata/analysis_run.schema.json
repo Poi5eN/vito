@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VITO Analysis Run",
+  "type": "object",
+  "required": ["run_id", "startup_id", "started_at", "methodology_version"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "startup_id": {"type": "string"},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": ["string", "null"], "format": "date-time"},
+    "methodology_version": {"type": "string"},
+    "model_version": {"type": ["string", "null"]},
+    "code_revision": {"type": ["string", "null"]},
+    "evidence_snapshot_id": {"type": ["string", "null"]},
+    "tools": {"type": "array", "items": {"type": "string"}},
+    "score": {"type": ["number", "null"], "minimum": 0, "maximum": 1000},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 100}
+  }
+}
