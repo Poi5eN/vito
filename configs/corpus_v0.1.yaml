@@ -1,0 +1,22 @@
+version: 0.1.0
+creator: Gourav Kumar Upadhyay
+status: seed_pipeline
+
+splits:
+  train: 0.80
+  validation: 0.10
+  test: 0.10
+  seed: 42
+
+quality:
+  require_provenance: true
+  require_verification: true
+  reject_secrets: true
+  reject_empty_input: true
+  reject_empty_output: true
+
+license:
+  seed_corpus: "TBD - choose final project license before public release"
+
+benchmark_policy:
+  benchmark_data_is_never_added_to_training_splits: true

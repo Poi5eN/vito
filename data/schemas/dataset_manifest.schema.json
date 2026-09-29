@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VITO Dataset Manifest",
+  "type": "object",
+  "required": ["dataset_name", "version", "seed", "files", "statistics"],
+  "properties": {
+    "dataset_name": {"type": "string"},
+    "version": {"type": "string"},
+    "seed": {"type": "integer"},
+    "files": {"type": "object"},
+    "statistics": {"type": "object"}
+  }
+}

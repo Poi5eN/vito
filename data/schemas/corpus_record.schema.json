@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VITO Corpus Record",
+  "type": "object",
+  "required": ["sample_id", "version", "domain", "task", "language", "input", "expected_output", "verification", "evidence", "provenance"],
+  "properties": {
+    "sample_id": {"type": "string", "pattern": "^vito_[0-9]{6}$"},
+    "version": {"type": "string"},
+    "domain": {"enum": ["developer", "venture"]},
+    "task": {"type": "string"},
+    "language": {"type": "string"},
+    "input": {"type": "string", "minLength": 1},
+    "context": {"type": "string"},
+    "expected_output": {"type": "string", "minLength": 1},
+    "verification": {"type": "array", "items": {"type": "string"}},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "claim"],
+        "properties": {
+          "source_id": {"type": "string"},
+          "claim": {"type": "string"}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source_type", "license", "creator"],
+      "properties": {
+        "source_type": {"enum": ["original", "synthetic", "licensed", "public_record"]},
+        "license": {"type": "string"},
+        "creator": {"type": "string"},
+        "source_url": {"type": "string"},
+        "retrieved_at": {"type": "string"}
+      }
+    }
+  }
+}
