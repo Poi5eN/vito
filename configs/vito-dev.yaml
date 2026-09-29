@@ -1,0 +1,32 @@
+name: vito-dev
+
+architecture: decoder_only_transformer
+
+vocab_size: 1060
+context_length: 512
+
+hidden_size: 512
+num_layers: 8
+num_attention_heads: 8
+intermediate_size: 2048
+
+dropout: 0.0
+initializer_range: 0.02
+
+tie_word_embeddings: true
+
+tokenizer:
+  path: tokenizer/vito-bpe-v0.1.json
+
+training:
+  seed: 42
+  learning_rate: 0.0003
+  weight_decay: 0.1
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  max_steps: 1000
+  warmup_steps: 100
+
+experiment:
+  id: VITO-EXP-002
+  version: 0.1.0-dev

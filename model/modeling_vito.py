@@ -341,8 +341,6 @@ class VitoForCausalLM(VitoPreTrainedModel):
 
         self.post_init()
 
-        self.tie_weights()
-
     def get_input_embeddings(self):
         return self.vito.get_input_embeddings()
 
@@ -358,6 +356,10 @@ class VitoForCausalLM(VitoPreTrainedModel):
     def tie_weights(self, missing_keys=None, recompute_mapping=True):
         if self.config.tie_word_embeddings:
             self.lm_head.weight = self.vito.token_embeddings.weight
+
+    _tied_weights_keys = {
+        "lm_head.weight": "vito.token_embeddings.weight",
+    }
 
     def forward(
         self,
