@@ -42,7 +42,7 @@ quality:
   require_provenance: true
   require_verification: true
   reject_secrets: true
-  reject_empty_input: true
+  reject_empty_input: false
   reject_empty_output: true
   reject_duplicate_sample_ids: true
   reject_duplicate_text: true

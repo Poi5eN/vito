@@ -7,7 +7,6 @@ from safetensors.torch import load_file
 
 
 class VitoCheckpointManager:
-
     def __init__(self, output_dir: str | Path):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(
@@ -22,6 +21,9 @@ class VitoCheckpointManager:
         scheduler,
         step: int,
         loss: float,
+        validation_loss: float | None = None,
+        validation_perplexity: float | None = None,
+        is_best: bool = False,
     ) -> Path:
 
         checkpoint_dir = (
@@ -48,13 +50,28 @@ class VitoCheckpointManager:
             checkpoint_dir / "scheduler.pt",
         )
 
+        state = {
+            "step": step,
+            "loss": loss,
+            "validation_loss": validation_loss,
+            "validation_perplexity": validation_perplexity,
+            "is_best": is_best,
+        }
+
         torch.save(
-            {
-                "step": step,
-                "loss": loss,
-            },
+            state,
             checkpoint_dir / "trainer_state.pt",
         )
+
+        if is_best:
+            best_file = (
+                self.output_dir / "best_checkpoint.txt"
+            )
+
+            best_file.write_text(
+                str(checkpoint_dir),
+                encoding="utf-8",
+            )
 
         return checkpoint_dir
 
@@ -91,7 +108,6 @@ class VitoCheckpointManager:
                     f"Missing checkpoint file: {file}"
                 )
 
-        # Load the model weights directly into the existing model.
         state_dict = load_file(
             str(model_state)
         )
@@ -101,7 +117,7 @@ class VitoCheckpointManager:
             strict=False,
         )
 
-        # Re-establish the tied lm_head relationship.
+        # Re-establish tied lm_head relationship.
         model.tie_weights()
 
         optimizer.load_state_dict(

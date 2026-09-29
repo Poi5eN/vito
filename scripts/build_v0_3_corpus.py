@@ -16,6 +16,14 @@ V02_SOURCE = (
     / "vito_v0.2_expanded.jsonl"
 )
 
+GENERATED_VITO_SOURCE = (
+    ROOT
+    / "data"
+    / "raw"
+    / "vito_v0.3_generated.jsonl"
+)
+
+
 EXTERNAL_SOURCE = (
     ROOT
     / "data"
@@ -577,6 +585,19 @@ def main():
     raw_vito = read_jsonl(
         V02_SOURCE
     )
+
+    raw_generated_vito = read_jsonl(
+
+        GENERATED_VITO_SOURCE
+
+    )
+
+    raw_vito.extend(
+
+        raw_generated_vito
+
+    )
+
 
     raw_external = read_jsonl(
         EXTERNAL_SOURCE
