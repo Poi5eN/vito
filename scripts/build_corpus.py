@@ -102,7 +102,16 @@ def write_jsonl(path: Path, records: list[dict]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=Path)
-    parser.add_argument("--output-dir", type=Path, default=Path("data/processed/vito_corpus_v0.1"))
+    parser.add_argument(
+    "--output-dir",
+    type=Path,
+    default=Path("data/processed/vito_corpus_v0.1"),
+)
+    parser.add_argument(
+        "--version",
+        type=str,
+        default="0.1.0",
+    )
     args = parser.parse_args()
 
     records = load_records(args.input)
@@ -118,7 +127,7 @@ def main() -> int:
 
     manifest = {
         "dataset_name": "vito-corpus",
-        "version": "0.1.0",
+        "version": args.version,
         "seed": 42,
         "source_file": str(args.input),
         "files": {},

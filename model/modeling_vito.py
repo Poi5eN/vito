@@ -262,6 +262,11 @@ class VitoModel(VitoPreTrainedModel):
                 "Specify either input_ids or inputs_embeds, not both."
             )
 
+        if input_ids is None and inputs_embeds is None:
+            raise ValueError(
+                "Specify either input_ids or inputs_embeds."
+            )
+
         if inputs_embeds is None:
             inputs_embeds = self.token_embeddings(input_ids)
 
@@ -328,6 +333,13 @@ class VitoModel(VitoPreTrainedModel):
 
 
 class VitoForCausalLM(VitoPreTrainedModel):
+
+    # Tell Transformers that these two parameter names
+    # intentionally refer to the same tensor.
+    _tied_weights_keys = {
+        "lm_head.weight": "vito.token_embeddings.weight",
+    }
+
     def __init__(self, config):
         super().__init__(config)
 
@@ -341,11 +353,17 @@ class VitoForCausalLM(VitoPreTrainedModel):
 
         self.post_init()
 
+        # Explicitly establish the shared tensor after initialization.
+        self.tie_weights()
+
     def get_input_embeddings(self):
         return self.vito.get_input_embeddings()
 
     def set_input_embeddings(self, value):
         self.vito.set_input_embeddings(value)
+
+        if self.config.tie_word_embeddings:
+            self.lm_head.weight = self.vito.token_embeddings.weight
 
     def get_output_embeddings(self):
         return self.lm_head
@@ -353,13 +371,13 @@ class VitoForCausalLM(VitoPreTrainedModel):
     def set_output_embeddings(self, new_embeddings):
         self.lm_head = new_embeddings
 
-    def tie_weights(self, missing_keys=None, recompute_mapping=True):
+    def tie_weights(
+        self,
+        missing_keys=None,
+        recompute_mapping=True,
+    ):
         if self.config.tie_word_embeddings:
             self.lm_head.weight = self.vito.token_embeddings.weight
-
-    _tied_weights_keys = {
-        "lm_head.weight": "vito.token_embeddings.weight",
-    }
 
     def forward(
         self,

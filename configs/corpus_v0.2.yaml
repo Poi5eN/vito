@@ -1,0 +1,49 @@
+version: 0.2.0
+
+creator: Gourav Kumar Upadhyay
+
+status: bootstrap_expansion
+
+dataset_name: vito-corpus
+
+splits:
+  train: 0.80
+  validation: 0.10
+  test: 0.10
+  seed: 42
+
+domains:
+  developer:
+    enabled: true
+
+  venture:
+    enabled: true
+
+quality:
+  require_provenance: true
+  require_verification: true
+  reject_secrets: true
+  reject_empty_input: true
+  reject_empty_output: true
+  reject_duplicate_sample_ids: true
+
+provenance:
+  synthetic_records_allowed: true
+  synthetic_records_must_be_labeled: true
+  external_records_require_source: true
+  external_records_require_license: true
+
+benchmark_policy:
+  benchmark_data_is_never_added_to_training_splits: true
+
+tokenizer:
+  target_vocab_size: 12288
+  model_type: bpe
+  min_frequency: 2
+
+training:
+  target_context_length: 512
+
+license:
+  project_generated_records: "TBD"
+  external_records: "must_be_verified_before_inclusion"
