@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import math
 import random
 from pathlib import Path
@@ -34,15 +35,47 @@ class VitoTrainer:
 
         self.model.to(self.device)
 
+        # -----------------------------------------------------------
+        # Mixed precision
+        # -----------------------------------------------------------
+        #
+        # FP16 is enabled only on CUDA devices such as the Kaggle T4.
+        #
+        # MPS and CPU continue using normal FP32 training.
+        #
+        self.use_amp = self.device.type == "cuda"
+
+        self.scaler = torch.amp.GradScaler(
+            "cuda",
+            enabled=self.use_amp,
+        )
+
+        print(
+            "Mixed precision: "
+            f"{'FP16' if self.use_amp else 'disabled'}"
+        )
+
+        # -----------------------------------------------------------
+        # Optimizer
+        # -----------------------------------------------------------
+
         self.optimizer = create_optimizer(
             self.model,
             self.config,
         )
 
+        # -----------------------------------------------------------
+        # Learning-rate scheduler
+        # -----------------------------------------------------------
+
         self.scheduler = create_scheduler(
             self.optimizer,
             self.config,
         )
+
+        # -----------------------------------------------------------
+        # Checkpoint manager
+        # -----------------------------------------------------------
 
         self.checkpoints = VitoCheckpointManager(
             self.config.output_dir
@@ -52,9 +85,17 @@ class VitoTrainer:
 
         self.best_validation_loss = float("inf")
 
+        # -----------------------------------------------------------
+        # Reproducibility
+        # -----------------------------------------------------------
+
         self._set_seed(
             self.config.seed
         )
+
+        # -----------------------------------------------------------
+        # Resume training
+        # -----------------------------------------------------------
 
         if getattr(
             self.config,
@@ -76,7 +117,9 @@ class VitoTrainer:
             )
 
             if validation_loss is not None:
-                self.best_validation_loss = validation_loss
+                self.best_validation_loss = (
+                    validation_loss
+                )
 
             print(
                 f"Resumed from step "
@@ -85,6 +128,10 @@ class VitoTrainer:
                 f"{state['loss']:.6f}"
             )
 
+    # ------------------------------------------------------------------
+    # Device
+    # ------------------------------------------------------------------
+
     def _resolve_device(self):
 
         if self.config.device != "auto":
@@ -92,16 +139,20 @@ class VitoTrainer:
                 self.config.device
             )
 
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+
         if (
             hasattr(torch.backends, "mps")
             and torch.backends.mps.is_available()
         ):
             return torch.device("mps")
 
-        if torch.cuda.is_available():
-            return torch.device("cuda")
-
         return torch.device("cpu")
+
+    # ------------------------------------------------------------------
+    # Random seed
+    # ------------------------------------------------------------------
 
     def _set_seed(self, seed: int):
 
@@ -110,6 +161,29 @@ class VitoTrainer:
         np.random.seed(seed)
 
         torch.manual_seed(seed)
+
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+
+    # ------------------------------------------------------------------
+    # Autocast context
+    # ------------------------------------------------------------------
+
+    def _autocast_context(self):
+
+        if self.use_amp:
+
+            return torch.autocast(
+                device_type="cuda",
+                dtype=torch.float16,
+                enabled=True,
+            )
+
+        return contextlib.nullcontext()
+
+    # ------------------------------------------------------------------
+    # Validation
+    # ------------------------------------------------------------------
 
     @torch.no_grad()
     def evaluate(self):
@@ -126,18 +200,30 @@ class VitoTrainer:
 
             input_ids = batch[
                 "input_ids"
-            ].to(self.device)
+            ].to(
+                self.device,
+                non_blocking=self.use_amp,
+            )
 
             labels = batch[
                 "labels"
-            ].to(self.device)
-
-            outputs = self.model(
-                input_ids=input_ids,
-                labels=labels,
+            ].to(
+                self.device,
+                non_blocking=self.use_amp,
             )
 
-            loss = outputs.loss
+            # -------------------------------------------------------
+            # FP16 autocast during validation
+            # -------------------------------------------------------
+
+            with self._autocast_context():
+
+                outputs = self.model(
+                    input_ids=input_ids,
+                    labels=labels,
+                )
+
+                loss = outputs.loss
 
             if loss is None:
                 raise RuntimeError(
@@ -174,6 +260,10 @@ class VitoTrainer:
             validation_perplexity,
         )
 
+    # ------------------------------------------------------------------
+    # Training
+    # ------------------------------------------------------------------
+
     def train(self):
 
         self.model.train()
@@ -207,36 +297,96 @@ class VitoTrainer:
 
             input_ids = batch[
                 "input_ids"
-            ].to(self.device)
+            ].to(
+                self.device,
+                non_blocking=self.use_amp,
+            )
 
             labels = batch[
                 "labels"
-            ].to(self.device)
+            ].to(
+                self.device,
+                non_blocking=self.use_amp,
+            )
+
+            # -------------------------------------------------------
+            # Clear gradients
+            # -------------------------------------------------------
 
             self.optimizer.zero_grad(
                 set_to_none=True
             )
 
-            outputs = self.model(
-                input_ids=input_ids,
-                labels=labels,
-            )
+            # -------------------------------------------------------
+            # Forward pass
+            # -------------------------------------------------------
+            #
+            # On CUDA/T4 this executes supported operations using
+            # FP16 where appropriate.
+            #
+            # On MPS/CPU this becomes a normal FP32 forward pass.
+            #
+            # -------------------------------------------------------
 
-            loss = outputs.loss
+            with self._autocast_context():
+
+                outputs = self.model(
+                    input_ids=input_ids,
+                    labels=labels,
+                )
+
+                loss = outputs.loss
 
             if loss is None:
                 raise RuntimeError(
                     "Model returned no training loss."
                 )
 
-            loss.backward()
+            # -------------------------------------------------------
+            # Backward pass
+            # -------------------------------------------------------
+            #
+            # GradScaler prevents FP16 gradient underflow.
+            #
+            # -------------------------------------------------------
+
+            self.scaler.scale(
+                loss
+            ).backward()
+
+            # -------------------------------------------------------
+            # Unscale gradients BEFORE clipping
+            # -------------------------------------------------------
+            #
+            # This is important.
+            #
+            # clip_grad_norm_ must operate on the real gradients,
+            # not the scaled gradients.
+            #
+            # -------------------------------------------------------
+
+            self.scaler.unscale_(
+                self.optimizer
+            )
 
             torch.nn.utils.clip_grad_norm_(
                 self.model.parameters(),
                 self.config.grad_clip_norm,
             )
 
-            self.optimizer.step()
+            # -------------------------------------------------------
+            # Optimizer step
+            # -------------------------------------------------------
+
+            self.scaler.step(
+                self.optimizer
+            )
+
+            self.scaler.update()
+
+            # -------------------------------------------------------
+            # Learning-rate scheduler
+            # -------------------------------------------------------
 
             self.scheduler.step()
 
