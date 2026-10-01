@@ -69,6 +69,12 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--packed-dir",
+        type=str,
+        default=str(PACKED_DIR),
+    )
+
+    parser.add_argument(
         "--resume-from",
         type=str,
         default=None,
@@ -207,17 +213,11 @@ def main():
         f"Parameters: {parameter_count:,}"
     )
 
-    train_dataset = VitoPackedDataset(
-        PACKED_DIR / "train.jsonl"
-    )
+    packed_dir = Path(args.packed_dir)
 
-    validation_dataset = VitoPackedDataset(
-        PACKED_DIR / "validation.jsonl"
-    )
-
-    test_dataset = VitoPackedDataset(
-        PACKED_DIR / "test.jsonl"
-    )
+    train_dataset = VitoPackedDataset(packed_dir / "train.jsonl")
+    validation_dataset = VitoPackedDataset(packed_dir / "validation.jsonl")
+    test_dataset = VitoPackedDataset(packed_dir / "test.jsonl")
 
     print(
         f"Training sequences:   {len(train_dataset):,}"
